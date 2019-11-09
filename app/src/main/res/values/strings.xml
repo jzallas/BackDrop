@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE resources [<!ENTITY appName "Background Player">]>
+
+<resources>
+    <string name="app_name">&appName;</string>
+    <string name="playbackChannelName">Playback</string>
+    <string name="playbackChannelDescription">Playback channel for &appName;</string>
+    <string name="labelShare">Play in background</string>
+
+    <!-- YouTube url configurations -->
+    <string name="schemeHttp">http</string>
+    <string name="schemeHttps">https</string>
+    <string name="youTubeHost">youtube.com</string>
+    <string name="youTubeHostFull">www.youtube.com</string>
+    <string name="youTubeHostShort">youtu.be</string>
+    <string name="youTubePath">/watch</string>
+</resources>
+

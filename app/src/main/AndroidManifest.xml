@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.jzallas.backgroundplayer">
+
+    <application
+        android:name=".BackgroundPlayerApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".MainActivity"
+            android:excludeFromRecents="true"
+            android:theme="@style/AppTheme.Dialog.NoActionBar">
+            <!-- Shared from YouTube -->
+            <intent-filter android:label="@string/labelShare">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+
+            <!-- Shared as Browser Link -->
+            <intent-filter android:label="@string/labelShare">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="@string/youTubeHostFull"
+                    android:pathPrefix="@string/youTubePath"
+                    android:scheme="@string/schemeHttp" />
+                <data
+                    android:host="@string/youTubeHostFull"
+                    android:pathPrefix="@string/youTubePath"
+                    android:scheme="@string/schemeHttps" />
+                <data
+                    android:host="@string/youTubeHost"
+                    android:pathPrefix="@string/youTubePath"
+                    android:scheme="@string/schemeHttp" />
+                <data
+                    android:host="@string/youTubeHost"
+                    android:pathPrefix="@string/youTubePath"
+                    android:scheme="@string/schemeHttps" />
+            </intent-filter>
+
+            <!-- Shared as Browser Link -->
+            <intent-filter android:label="@string/labelShare">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="@string/youTubeHostShort"
+                    android:scheme="@string/schemeHttps" />
+                <data
+                    android:host="@string/youTubeHostShort"
+                    android:scheme="@string/schemeHttp" />
+            </intent-filter>
+        </activity>
+
+        <service android:name=".service.MediaService" />
+    </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+</manifest>
