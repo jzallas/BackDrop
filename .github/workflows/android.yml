@@ -15,11 +15,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 11
-    - name: Downloading web dependencies
+    - name: Fetch web dependencies
       run: npm ci --prefix ./web
-    - name: Building webpack
+    - name: Build webpack
       run: npm build --prefix ./web
-    - name: Test
+    - name: Test App
       run: ./gradlew clean test
-    - name: Build
+    - name: Build App
       run: ./gradlew clean build
