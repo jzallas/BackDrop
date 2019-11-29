@@ -1,4 +1,4 @@
-package com.jzallas.backgroundplayer
+package com.jzallas.backdrop
 
 import org.junit.Test
 
