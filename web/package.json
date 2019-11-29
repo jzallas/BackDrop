@@ -1,0 +1,27 @@
+{
+  "name": "com.jzallas.backdrop",
+  "version": "0.1.0",
+  "description": "Fetches YouTube media metadata",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jzallas/BackDrop.git"
+  },
+  "author": "jzallas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jzallas/BackDrop/issues"
+  },
+  "homepage": "https://github.com/jzallas/BackDrop#readme",
+  "dependencies": {
+    "ytdl-core": "^1.0.0"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  }
+}
