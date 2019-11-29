@@ -12,7 +12,7 @@ This applicaiton cannot be launched from the launcher. It can only be launched v
 Before building the application, the web resources need to be built. Run the following to build the web resources:
 
 ```bash
-cd web
-npm ci
-npm run build
+$ cd web
+$ npm ci
+$ npm run build
 ```
