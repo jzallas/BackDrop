@@ -18,7 +18,7 @@ jobs:
     - name: Fetch web dependencies
       run: npm ci --prefix ./web
     - name: Build webpack
-      run: npm build --prefix ./web
+      run: npm run build --prefix ./web
     - name: Test App
       run: ./gradlew clean test
     - name: Build App
