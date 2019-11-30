@@ -1,5 +1,6 @@
 package com.jzallas.backdrop.di
 
+import androidx.webkit.WebViewAssetLoader
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
@@ -17,8 +18,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import com.jzallas.backdrop.R
+import com.jzallas.backdrop.javascript.JavascriptEngine
+import com.jzallas.backdrop.javascript.JavascriptEvaluator
+import com.jzallas.backdrop.javascript.webview.ScriptInjector
+import com.jzallas.backdrop.javascript.webview.WebViewController
+import com.jzallas.backdrop.javascript.webview.WebViewEngine
 import com.jzallas.backdrop.youtube.extractor.YouTubeExtractor
 import com.jzallas.backdrop.youtube.api.LegacyYouTubeApi
 import com.jzallas.backdrop.youtube.api.YouTubeUrlParser
@@ -32,6 +37,10 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import com.jzallas.backdrop.moshi.LenientAdapterFactory
+import com.jzallas.backdrop.random.IdGenerator
+import com.jzallas.backdrop.repository.YouTubeApi
+import com.jzallas.backdrop.repository.YouTubeRepository
+import org.koin.dsl.bind
 
 
 typealias MediaSourceFactory = AdsMediaSource.MediaSourceFactory
@@ -60,8 +69,6 @@ val playerModule = module {
   factory<TrackSelector> { DefaultTrackSelector() }
 
   factory<LoadControl> { DefaultLoadControl() }
-
-  single(named("userAgent")) { Util.getUserAgent(get(), "ExoPlayer") }
 
   factory<DataSource.Factory> { DefaultDataSourceFactory(get(), get<String>(named("userAgent"))) }
 
@@ -92,7 +99,33 @@ val notificationModule = module {
   }
 }
 
+val jsModule = module {
+  factory { JavascriptEvaluator(get(), "main.js") }
+
+  factory { WebViewEngine(get(named("origin")), get(), get()) } bind JavascriptEngine::class
+
+  factory { WebViewController.Factory(get(), get(named("userAgent")), "android", get()) }
+
+  factory { ScriptInjector(get()) }
+
+  factory {
+    WebViewAssetLoader.Builder()
+      .addPathHandler("/assets/", get<WebViewAssetLoader.AssetsPathHandler>())
+      .build()
+  }
+
+  factory { WebViewAssetLoader.AssetsPathHandler(get()) }
+
+  factory { IdGenerator() }
+}
+
 val networkModule = module {
+  single(named("origin")) { "https://www.youtube.com" }
+
+  single(named("userAgent")) {
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.3"
+  }
+
   factory { OkHttpClient() }
 
   factory {
@@ -111,6 +144,8 @@ val networkModule = module {
   factory { YouTubeExtractor(get()) }
 
   factory { YouTubeUrlParser() }
+
+  factory { YouTubeApi(get()) }
 }
 
 val repositoryModule = module {
@@ -119,6 +154,8 @@ val repositoryModule = module {
   factory { YtFileRepository(get(), get()) }
 
   factory { VideoDetailRepository(get(), get(), get()) }
+
+  factory { YouTubeRepository(get()) }
 }
 
 val parsingModule = module {
