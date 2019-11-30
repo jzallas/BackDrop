@@ -1,5 +1,9 @@
 const { getBasicInfo, filterFormats } = require('ytdl-core');
 
+if (!window.app) {
+    window.app = {};
+}
+
 window.app.getVideoInfo = function(id, url) {
     getBasicInfo(url, function(err, info) {
       if (err) {
