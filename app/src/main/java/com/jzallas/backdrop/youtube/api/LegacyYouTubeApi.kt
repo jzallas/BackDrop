@@ -5,7 +5,7 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface YouTubeApi {
+interface LegacyYouTubeApi {
 
   companion object {
     const val BASE_URL = "https://www.youtube.com"

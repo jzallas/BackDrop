@@ -17,3 +17,11 @@ inline fun <reified T : Any> T.logInfo(message: String, throwable: Throwable? = 
     else -> Log.i(tag, message, throwable)
   }
 }
+
+inline fun <reified T : Any> T.logWarn(message: String, throwable: Throwable? = null) {
+  val tag = T::class.java.simpleName
+  when (throwable) {
+    null -> Log.w(tag, message)
+    else -> Log.w(tag, message, throwable)
+  }
+}
