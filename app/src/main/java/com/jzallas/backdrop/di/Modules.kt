@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.jzallas.backdrop.R
 import com.jzallas.backdrop.youtube.extractor.YouTubeExtractor
-import com.jzallas.backdrop.youtube.api.YouTubeApi
+import com.jzallas.backdrop.youtube.api.LegacyYouTubeApi
 import com.jzallas.backdrop.youtube.api.YouTubeUrlParser
 import com.jzallas.backdrop.youtube.converter.UrlEncodedConverterFactory
 import com.jzallas.backdrop.youtube.repository.MediaSampleRepository
@@ -100,12 +100,12 @@ val networkModule = module {
       .client(get())
   }
 
-  factory<YouTubeApi> {
+  factory<LegacyYouTubeApi> {
     get<Retrofit.Builder>()
       .addConverterFactory(get(named("urlEncoded")))
-      .baseUrl(YouTubeApi.BASE_URL)
+      .baseUrl(LegacyYouTubeApi.BASE_URL)
       .build()
-      .create(YouTubeApi::class.java)
+      .create(LegacyYouTubeApi::class.java)
   }
 
   factory { YouTubeExtractor(get()) }

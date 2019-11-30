@@ -2,7 +2,7 @@ package com.jzallas.backdrop.youtube.repository
 
 import com.jzallas.backdrop.extensions.log.logError
 import com.jzallas.backdrop.extensions.moshi.deserialize
-import com.jzallas.backdrop.youtube.api.YouTubeApi
+import com.jzallas.backdrop.youtube.api.LegacyYouTubeApi
 import com.jzallas.backdrop.youtube.api.YouTubeUrlParser
 import com.jzallas.backdrop.youtube.converter.UrlEncodedBody
 import com.jzallas.backdrop.youtube.model.PlayerResponse
@@ -11,7 +11,7 @@ import com.squareup.moshi.Moshi
 import retrofit2.Response
 
 class VideoDetailRepository (
-  private val api: YouTubeApi,
+  private val api: LegacyYouTubeApi,
   private val urlParser: YouTubeUrlParser,
   private val moshi: Moshi
 ) {
