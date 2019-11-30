@@ -162,7 +162,7 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   }
 
   override fun createCurrentContentIntent(player: Player): PendingIntent =
-    Intent(this, com.jzallas.backdrop.MainActivity::class.java)
+    Intent(this, MainActivity::class.java)
       .let { PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_UPDATE_CURRENT) }
 
   override fun getCurrentContentTitle(player: Player?) =
