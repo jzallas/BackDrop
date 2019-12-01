@@ -1,21 +1,21 @@
-const { getBasicInfo, filterFormats } = require('ytdl-core');
+const { getInfo, filterFormats } = require('ytdl-core')
 
 if (!window.app) {
-    window.app = {};
+    window.app = {}
 }
 
-window.app.getVideoInfo = function(id, url) {
-    getBasicInfo(url, function(err, info) {
+window.app.getVideoInfo = (id, url) => {
+    getInfo(url, (err, info) => {
       if (err) {
         android.onFailure(id, JSON.stringify(err));
-        return;
+        return
       }
 
-      var results = { ...info };
+      var results = { ...info }
 
       // original youtube response -- don't care about this
-      delete results.player_response;
+      delete results.player_response
 
-      android.onSuccess(id, JSON.stringify(results));
-    });
+      android.onSuccess(id, JSON.stringify(results))
+    })
   }
