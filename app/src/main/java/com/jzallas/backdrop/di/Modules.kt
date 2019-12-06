@@ -40,6 +40,8 @@ import com.jzallas.backdrop.moshi.LenientAdapterFactory
 import com.jzallas.backdrop.random.IdGenerator
 import com.jzallas.backdrop.repository.YouTubeApi
 import com.jzallas.backdrop.repository.YouTubeRepository
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import org.koin.dsl.bind
 
 
@@ -145,7 +147,7 @@ val networkModule = module {
 
   factory { YouTubeUrlParser() }
 
-  factory { YouTubeApi(get()) }
+  factory { YouTubeApi(get(), get()) }
 }
 
 val repositoryModule = module {
@@ -164,6 +166,10 @@ val parsingModule = module {
       .add(get<LenientAdapterFactory>())
       .build()
   }
+
+  single{ Json(get<JsonConfiguration>()) }
+
+  single { JsonConfiguration.Stable.copy(strictMode = false) }
 
   single { LenientAdapterFactory() }
 
