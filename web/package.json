@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "repository": {
     "type": "git",

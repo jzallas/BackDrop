@@ -9,7 +9,8 @@ data class VideoInfo(
   @SerialName("videoUrl") val url: String,
   @SerialName("video_id") val id: String,
   val media: Media,
-  val formats: List<Format>
+  val formats: List<Format>,
+  val thumbnails: List<Thumbnail>
 )
 
 @Serializable
@@ -61,4 +62,11 @@ data class Format(
   @SerialName("live") val isLive: Boolean,
   val isHLS: Boolean,
   val isDashMPD: Boolean
+)
+
+@Serializable
+data class Thumbnail(
+  val width: Int,
+  val height: Int,
+  val url: String
 )

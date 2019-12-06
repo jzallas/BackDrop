@@ -11,7 +11,10 @@ window.app.getVideoInfo = (id, url) => {
         return
       }
 
-      var results = { ...info }
+      var results = {
+      ...info,
+      thumbnails: info.player_response.videoDetails.thumbnail.thumbnails
+     }
 
       // original youtube response -- don't care about this
       delete results.player_response
