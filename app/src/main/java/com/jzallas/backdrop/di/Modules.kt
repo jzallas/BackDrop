@@ -24,19 +24,9 @@ import com.jzallas.backdrop.javascript.JavascriptEvaluator
 import com.jzallas.backdrop.javascript.webview.ScriptInjector
 import com.jzallas.backdrop.javascript.webview.WebViewController
 import com.jzallas.backdrop.javascript.webview.WebViewEngine
-import com.jzallas.backdrop.youtube.extractor.YouTubeExtractor
-import com.jzallas.backdrop.youtube.api.LegacyYouTubeApi
-import com.jzallas.backdrop.youtube.api.YouTubeUrlParser
-import com.jzallas.backdrop.youtube.converter.UrlEncodedConverterFactory
-import com.jzallas.backdrop.youtube.repository.MediaSampleRepository
-import com.jzallas.backdrop.youtube.repository.VideoDetailRepository
-import com.jzallas.backdrop.youtube.repository.YtFileRepository
-import com.squareup.moshi.Moshi
-import okhttp3.OkHttpClient
+import com.jzallas.backdrop.repository.MediaSampleRepository
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import retrofit2.Retrofit
-import com.jzallas.backdrop.moshi.LenientAdapterFactory
 import com.jzallas.backdrop.random.IdGenerator
 import com.jzallas.backdrop.repository.YouTubeApi
 import com.jzallas.backdrop.repository.YouTubeRepository
@@ -128,50 +118,17 @@ val networkModule = module {
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.3"
   }
 
-  factory { OkHttpClient() }
-
-  factory {
-    Retrofit.Builder()
-      .client(get())
-  }
-
-  factory<LegacyYouTubeApi> {
-    get<Retrofit.Builder>()
-      .addConverterFactory(get(named("urlEncoded")))
-      .baseUrl(LegacyYouTubeApi.BASE_URL)
-      .build()
-      .create(LegacyYouTubeApi::class.java)
-  }
-
-  factory { YouTubeExtractor(get()) }
-
-  factory { YouTubeUrlParser() }
-
   factory { YouTubeApi(get(), get()) }
 }
 
 val repositoryModule = module {
-  factory { MediaSampleRepository(get(), get()) }
-
-  factory { YtFileRepository(get(), get()) }
-
-  factory { VideoDetailRepository(get(), get(), get()) }
+  factory { MediaSampleRepository(get()) }
 
   factory { YouTubeRepository(get()) }
 }
 
 val parsingModule = module {
-  single {
-    Moshi.Builder()
-      .add(get<LenientAdapterFactory>())
-      .build()
-  }
-
   single{ Json(get<JsonConfiguration>()) }
 
   single { JsonConfiguration.Stable.copy(strictMode = false) }
-
-  single { LenientAdapterFactory() }
-
-  single(named("urlEncoded")) { UrlEncodedConverterFactory.create() }
 }

@@ -6,9 +6,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VideoInfo(
   val baseUrl: String? = null,
-  @SerialName("videoUrl") val url: String,
+  @SerialName("video_url") val url: String,
   @SerialName("video_id") val id: String,
   val media: Media,
+  val title: String,
   val formats: List<Format>,
   val thumbnails: List<Thumbnail>
 )
@@ -48,13 +49,14 @@ data class Format(
   val width: Int? = null,
   val height: Int? = null,
   val lastModified: String,
-  val contentLength: String,
+  val contentLength: String? = null,
   val quality: String,
   val qualityLabel: String? = null,
   val fps: Int? = null,
-  val averageBitrate: Int,
+  val averageBitrate: Int? = null,
   val audioQuality: String? = null,
-  val approxDurationMs: String,
+  val audioBitrate: Int? = null,
+  val approxDurationMs: String? = null,
   val audioSampleRate: String? = null,
   val audioChannels: Int? = null,
   val container: String,
