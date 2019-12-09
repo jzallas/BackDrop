@@ -1,4 +1,4 @@
-package com.jzallas.backdrop.youtube.model
+package com.jzallas.backdrop.repository.model
 
 data class MediaSample(
   val title: String,

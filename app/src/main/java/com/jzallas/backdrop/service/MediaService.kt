@@ -13,10 +13,8 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.jzallas.backdrop.MainActivity
 import com.jzallas.backdrop.di.MediaSourceFactory
-import com.jzallas.backdrop.extensions.glide.into
 import com.jzallas.backdrop.extensions.log.logInfo
-import com.jzallas.backdrop.youtube.model.MediaSample
-import com.jzallas.backdrop.youtube.repository.MediaSampleRepository
+import com.jzallas.backdrop.repository.MediaSampleRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -34,6 +32,8 @@ import androidx.lifecycle.LifecycleService
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
+import com.jzallas.backdrop.extensions.glide.into
+import com.jzallas.backdrop.repository.model.MediaSample
 import kotlin.properties.Delegates.observable
 
 private typealias NotificationManager = PlayerNotificationManager

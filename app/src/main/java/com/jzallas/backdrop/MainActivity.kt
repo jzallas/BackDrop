@@ -11,8 +11,8 @@ import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.jzallas.backdrop.extensions.cast
 import com.jzallas.backdrop.main.MainViewModel
+import com.jzallas.backdrop.repository.model.MediaSample
 import com.jzallas.backdrop.service.MediaService
-import com.jzallas.backdrop.youtube.model.MediaSample
 import kotlinx.android.synthetic.main.main_activity.*
 
 class MainActivity : AppCompatActivity(), ServiceConnection {
