@@ -1,24 +1,22 @@
-const { getInfo, filterFormats } = require('ytdl-core')
+const { getInfo } = require('ytdl-core')
 
-if (!window.app) {
-    window.app = {}
+async function getVideoInfo(url) {
+    var info = await getInfo(url)
+
+    var results = {
+        ...info,
+        thumbnails: info.player_response.videoDetails.thumbnail.thumbnails
+    }
+
+    // original youtube response -- don't care about this
+    delete results.player_response
+
+    return results
 }
 
-window.app.getVideoInfo = (id, url) => {
-    getInfo(url, (err, info) => {
-      if (err) {
-        android.onFailure(id, JSON.stringify(err));
-        return
-      }
+module.exports = { getVideoInfo }
 
-      var results = {
-      ...info,
-      thumbnails: info.player_response.videoDetails.thumbnail.thumbnails
-     }
-
-      // original youtube response -- don't care about this
-      delete results.player_response
-
-      android.onSuccess(id, JSON.stringify(results))
-    })
-  }
+if (typeof window !== 'undefined') {
+    Object.keys(module.exports)
+        .forEach(key => window[key] = module.exports[key])
+}

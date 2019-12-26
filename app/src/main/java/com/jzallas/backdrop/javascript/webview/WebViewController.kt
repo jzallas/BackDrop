@@ -11,8 +11,12 @@ import androidx.webkit.WebViewClientCompat
 import com.jzallas.backdrop.BuildConfig
 import com.jzallas.backdrop.extensions.collections.peekOrNull
 import com.jzallas.backdrop.extensions.collections.removeOrNull
+import com.jzallas.webview.call
+import com.jzallas.webview.javaScriptEnabled
 import java.util.LinkedList
 import java.util.Queue
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Directs javascript evaluation within the [WebView].
@@ -72,6 +76,19 @@ class WebViewController(
     if (queue.size == 1) load()
   }
 
+  @MainThread
+  suspend fun call(origin: String, entryPoint: String, functionName: String, args: String): String {
+    load(origin, entryPoint)
+    return webView.call(functionName, args)
+  }
+
+  private suspend fun load(origin: String, entryPoint: String) = suspendCoroutine<Unit> { continuation ->
+    val request = Request(origin, entryPoint) { continuation.resume(Unit) }
+    queue.add(request)
+    // if this is the only request, load it immediately
+    if (queue.size == 1) load()
+  }
+
   private class Request(val origin: String, val entryPoint: String, val onLoadComplete: () -> Unit)
 
   private inner class LoadClient : WebViewClientCompat() {
@@ -98,10 +115,10 @@ class WebViewController(
     fun create(jsInterface: Any) = WebView(appContext).apply {
       WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
 
+      javaScriptEnabled = true
+
       settings.apply {
         userAgentString = agent
-        @SuppressLint("SetJavaScriptEnabled")
-        javaScriptEnabled = true
       }
       setWillNotDraw(true)
 
