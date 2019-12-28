@@ -49,10 +49,11 @@ suspend fun WebView.call(functionName: String, args: String): String =
     val javascript = """
       (() => {
         let value = $functionName(JSON.parse('$args'))
+        let id = '$id'
         
         Promise.resolve(value)
-          .then(result => ${map.name}.onSuccess('$id', JSON.stringify(result)))
-          .catch(error => ${map.name}.onFailure('$id', JSON.stringify(error)))
+          .then(result => ${map.name}.onSuccess(id, JSON.stringify(result)))
+          .catch(error => ${map.name}.onFailure(id, JSON.stringify(error, Object.getOwnPropertyNames(error))))
       })()
     """.trimIndent()
 
