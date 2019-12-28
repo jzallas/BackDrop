@@ -1,8 +1,9 @@
-package com.jzallas.webview
+package com.jzallas.webview.promise
 
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import com.jzallas.webview.R
 import com.jzallas.webview.ktx.view.getOrSetTag
 import java.util.Collections
 import java.util.UUID

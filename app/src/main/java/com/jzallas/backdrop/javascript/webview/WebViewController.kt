@@ -11,8 +11,8 @@ import androidx.webkit.WebViewClientCompat
 import com.jzallas.backdrop.BuildConfig
 import com.jzallas.backdrop.extensions.collections.peekOrNull
 import com.jzallas.backdrop.extensions.collections.removeOrNull
-import com.jzallas.webview.call
-import com.jzallas.webview.javaScriptEnabled
+import com.jzallas.webview.promise.call
+import com.jzallas.webview.promise.javaScriptEnabled
 import java.util.LinkedList
 import java.util.Queue
 import kotlin.coroutines.resume
