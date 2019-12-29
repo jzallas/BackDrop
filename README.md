@@ -1,6 +1,7 @@
 #  BackDrop
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/jzallas/BackDrop/Android CI)
+[![Actions Status](https://github.com/jzallas/BackDrop/workflows/Android%20CI/badge.svg)](https://github.com/jzallas/BackDrop/actions)
 [![license](https://img.shields.io/github/license/jzallas/BackDrop)](https://github.com/jzallas/BackDrop/blob/master/LICENSE)
+
 Plays youtube audio in the background.
 
 
