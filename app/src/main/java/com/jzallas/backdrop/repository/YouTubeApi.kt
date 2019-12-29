@@ -3,7 +3,7 @@ package com.jzallas.backdrop.repository
 import com.jzallas.backdrop.webview.WebViewFactory
 import com.jzallas.backdrop.repository.model.VideoInfo
 import com.jzallas.webview.promise.call
-import com.jzallas.webview.script.loadAsset
+import com.jzallas.webview.html.loadAsset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
