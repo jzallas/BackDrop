@@ -111,7 +111,14 @@ val networkModule = module {
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.3"
   }
 
-  factory { YouTubeApi(get(), "index.html", get()) }
+  factory {
+    YouTubeApi(
+      factory = get(),
+      asset = "index.html",
+      origin = "https://www.youtube.com",
+      json = get()
+    )
+  }
 }
 
 val repositoryModule = module {

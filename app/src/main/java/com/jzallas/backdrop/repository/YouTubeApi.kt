@@ -13,6 +13,7 @@ import kotlinx.serialization.serializer
 class YouTubeApi(
   private val factory: WebViewFactory,
   private val asset: String,
+  private val origin: String,
   private val json: Json
 ) {
 
@@ -24,7 +25,7 @@ class YouTubeApi(
       val args = json.toJson(String.serializer(), url).toString()
 
       val result = withContext(Dispatchers.Main) {
-        webView.loadAsset(url, asset)
+        webView.loadAsset(origin, asset)
         webView.call("getVideoInfo", args)
       }
 
