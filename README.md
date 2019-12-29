@@ -4,6 +4,8 @@
 
 Plays youtube audio in the background.
 
+![BackDrop animation GIF showing launching content via intent filter](preview_animation.gif)
+
 
 ### Prerequisites
 1. [node 11](https://nodejs.org/en/)
