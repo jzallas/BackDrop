@@ -1,5 +1,6 @@
 package com.jzallas.backdrop.di
 
+import android.webkit.WebViewClient
 import androidx.webkit.WebViewAssetLoader
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.DefaultLoadControl
@@ -19,17 +20,13 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.jzallas.backdrop.R
-import com.jzallas.backdrop.javascript.JavascriptEngine
-import com.jzallas.backdrop.javascript.JavascriptEvaluator
-import com.jzallas.backdrop.javascript.webview.ScriptInjector
-import com.jzallas.backdrop.javascript.webview.WebViewController
-import com.jzallas.backdrop.javascript.webview.WebViewEngine
+import com.jzallas.backdrop.webview.WebViewFactory
 import com.jzallas.backdrop.repository.MediaSampleRepository
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import com.jzallas.backdrop.random.IdGenerator
 import com.jzallas.backdrop.repository.YouTubeApi
 import com.jzallas.backdrop.repository.YouTubeRepository
+import com.jzallas.webview.client.DelegateWebViewClient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import org.koin.dsl.bind
@@ -91,14 +88,12 @@ val notificationModule = module {
   }
 }
 
-val jsModule = module {
-  factory { JavascriptEvaluator(get(), "main.js") }
-
-  factory { WebViewEngine(get(named("origin")), get(), get()) } bind JavascriptEngine::class
-
-  factory { WebViewController.Factory(get(), get(named("userAgent")), "android", get()) }
-
-  factory { ScriptInjector(get()) }
+val webViewModule = module {
+  factory {
+    DelegateWebViewClient().apply {
+      shouldInterceptRequest += { _, request -> get<WebViewAssetLoader>().shouldInterceptRequest(request.url) }
+    }
+  } bind WebViewClient::class
 
   factory {
     WebViewAssetLoader.Builder()
@@ -108,17 +103,15 @@ val jsModule = module {
 
   factory { WebViewAssetLoader.AssetsPathHandler(get()) }
 
-  factory { IdGenerator() }
+  factory { WebViewFactory(get(), get(named("userAgent")), get()) }
 }
 
 val networkModule = module {
-  single(named("origin")) { "https://www.youtube.com" }
-
   single(named("userAgent")) {
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.3"
   }
 
-  factory { YouTubeApi(get(), get()) }
+  factory { YouTubeApi(get(), "index.html", get()) }
 }
 
 val repositoryModule = module {
@@ -128,7 +121,7 @@ val repositoryModule = module {
 }
 
 val parsingModule = module {
-  single{ Json(get<JsonConfiguration>()) }
+  single { Json(get<JsonConfiguration>()) }
 
   single { JsonConfiguration.Stable.copy(strictMode = false) }
 }

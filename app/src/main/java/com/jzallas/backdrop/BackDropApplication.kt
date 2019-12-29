@@ -1,12 +1,12 @@
 package com.jzallas.backdrop
 
 import android.app.Application
-import com.jzallas.backdrop.di.jsModule
 import com.jzallas.backdrop.di.networkModule
 import com.jzallas.backdrop.di.notificationModule
 import com.jzallas.backdrop.di.parsingModule
 import com.jzallas.backdrop.di.playerModule
 import com.jzallas.backdrop.di.repositoryModule
+import com.jzallas.backdrop.di.webViewModule
 import com.jzallas.backdrop.extensions.koin.modules
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -23,7 +23,7 @@ class BackDropApplication : Application() {
         playerModule,
         notificationModule,
         parsingModule,
-        jsModule,
+        webViewModule,
         networkModule,
         repositoryModule
       )
