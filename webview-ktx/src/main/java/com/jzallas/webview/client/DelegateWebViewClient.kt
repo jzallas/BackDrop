@@ -4,11 +4,19 @@ import android.graphics.Bitmap
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.webkit.WebViewClientCompat
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 
-open class DelegateWebViewClient : WebViewClientCompat() {
+/**
+ * [WebViewClient] that allows for listeners on hooks without requiring inheritance.
+ *
+ * If a hook is expected to return some result, then this client will go through each delegate
+ * until it hits the first valid result. Once the first valid result is found, that result will be returned without
+ * calling any of the remaining delegates. If no valid results are found, then the default behavior will be used.
+ */
+class DelegateWebViewClient : WebViewClientCompat() {
 
   val onPageStarted = mutableSetOf<(view: WebView, url: String, favicon: Bitmap?) -> Unit>()
   override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
