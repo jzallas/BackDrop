@@ -62,5 +62,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${kotlin_serializationVersion}"
 
+    implementation "androidx.webkit:webkit:${androidx_webkitVersion}"
+
     implementation project(":webview-ktx")
 }
