@@ -32,6 +32,7 @@ import androidx.lifecycle.LifecycleService
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
+import com.jzallas.backdrop.extensions.distinct
 import com.jzallas.backdrop.extensions.glide.into
 import com.jzallas.backdrop.repository.model.MediaSample
 import kotlin.properties.Delegates.observable
@@ -69,6 +70,9 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   var onSamplePrepared by observable<((MediaSample) -> Unit)?>(null) { _, _, new ->
     val existingSample = nowPlaying ?: return@observable
     new?.invoke(existingSample)
+  private var currentIndex by distinct<Int?>(null) { _, new ->
+    new ?: return@distinct
+  }
   }
 
   private var nowPlaying: MediaSample? = null
@@ -198,6 +202,12 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
       isStopped -> stopForeground(false).also { logInfo("Playback has finished.") }
       isPaused -> stopForeground(false).also { logInfo("Playback has been paused.") }
     }
+  }
+
+  override fun onPositionDiscontinuity(reason: Int) {
+    super.onPositionDiscontinuity(reason)
+    // update the current index as the window may have changed
+    currentIndex = player.currentWindowIndex
   }
 
   inner class LocalBinder : Binder() {
