@@ -20,8 +20,10 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.jzallas.backdrop.R
+import com.jzallas.backdrop.exo.DetailedSource
+import com.jzallas.backdrop.exo.DetailedSourceFactory
 import com.jzallas.backdrop.webview.WebViewFactory
-import com.jzallas.backdrop.repository.MediaSampleRepository
+import com.jzallas.backdrop.repository.MediaSourceRepository
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.jzallas.backdrop.repository.YouTubeApi
@@ -63,7 +65,9 @@ val playerModule = module {
 
   factory<ExtractorsFactory> { DefaultExtractorsFactory() }
 
-  factory<MediaSourceFactory> { ProgressiveMediaSource.Factory(get(), get()) }
+  factory { ProgressiveMediaSource.Factory(get(), get()) } bind MediaSourceFactory::class
+
+  factory { DetailedSourceFactory(get()) } bind DetailedSource.Factory::class
 }
 
 val notificationModule = module {
@@ -122,7 +126,7 @@ val networkModule = module {
 }
 
 val repositoryModule = module {
-  factory { MediaSampleRepository(get()) }
+  factory { MediaSourceRepository(get(), get()) }
 
   factory { YouTubeRepository(get()) }
 }
