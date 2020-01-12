@@ -29,6 +29,6 @@ jobs:
     - name: Release Debug APK
       uses: jzallas/action-release-debugapk@master
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
         APP_FOLDER: app
         RELEASE_TITLE: BackDrop
