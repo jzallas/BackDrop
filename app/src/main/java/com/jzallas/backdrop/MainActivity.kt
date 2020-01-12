@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection {
 
   override fun onStop() {
     service?.let {
+      it.onSamplePrepared = null
       unbindService(this)
       service = null
     }
