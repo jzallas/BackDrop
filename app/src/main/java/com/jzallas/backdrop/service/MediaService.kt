@@ -5,16 +5,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.IBinder
 import com.bumptech.glide.Glide
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.jzallas.backdrop.MainActivity
-import com.jzallas.backdrop.di.MediaSourceFactory
 import com.jzallas.backdrop.extensions.log.logInfo
-import com.jzallas.backdrop.repository.MediaSampleRepository
+import com.jzallas.backdrop.repository.MediaSourceRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,10 +29,11 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.LifecycleService
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
+import com.jzallas.backdrop.exo.DetailedSource
+import com.jzallas.backdrop.exo.PlayList
+import com.jzallas.backdrop.extensions.distinct
 import com.jzallas.backdrop.extensions.glide.into
 import com.jzallas.backdrop.repository.model.MediaSample
-import kotlin.properties.Delegates.observable
 
 private typealias NotificationManager = PlayerNotificationManager
 private typealias MediaDescriptionAdapter = PlayerNotificationManager.MediaDescriptionAdapter
@@ -60,18 +59,27 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
 
   val player: ExoPlayer by inject()
 
-  private val mediaSourceFactory: MediaSourceFactory by inject()
+  private val playList by lazy { PlayList<DetailedSource<MediaSample>>() }
 
   private val notificationManager: NotificationManager by inject { parametersOf(this, this) }
 
-  private val sampleRepository: MediaSampleRepository by inject()
+  private val sourceRepository: MediaSourceRepository by inject()
 
-  var onSamplePrepared by observable<((MediaSample) -> Unit)?>(null) { _, _, new ->
-    val existingSample = nowPlaying ?: return@observable
-    new?.invoke(existingSample)
+  var onSamplePrepared : ((MediaSample) -> Unit)? = null
+    set(value) {
+      field = value
+      // notify immediately if a sample is already playing
+      nowPlaying?.let { value?.invoke(it) }
+    }
+
+  private var currentIndex by distinct<Int?>(null) { _, new ->
+    new ?: return@distinct
+    // every time the currentIndex changes, notify listeners about the new content
+    playList[new].details.also { onSamplePrepared?.invoke(it) }
   }
 
-  private var nowPlaying: MediaSample? = null
+  private val nowPlaying: MediaSample?
+    get() = currentIndex?.let { playList[it] }?.details
 
   override fun onBind(intent: Intent): IBinder {
     super.onBind(intent)
@@ -93,7 +101,7 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
 
     connector.setQueueNavigator(object : TimelineQueueNavigator(mediaSession) {
       override fun getMediaDescription(player: Player?, windowIndex: Int): MediaDescriptionCompat {
-        val nowPlaying = nowPlaying ?: throw IllegalArgumentException("Media is not ready.")
+        val sample = playList[windowIndex].details
 
         // TODO - consider pre-loading bitmap
         val bitmap: Bitmap? = null
@@ -104,10 +112,10 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
         )
 
         return MediaDescriptionCompat.Builder()
-          .setMediaId(nowPlaying.id.toString())
+          .setMediaId(sample.id.toString())
           .setIconBitmap(bitmap)
-          .setTitle(nowPlaying.title)
-          .setDescription(nowPlaying.sourceUrl)
+          .setTitle(sample.title)
+          .setDescription(sample.sourceUrl)
           .setExtras(extras)
           .build()
       }
@@ -116,40 +124,39 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
 
     connector.setPlayer(player)
 
+    player.run {
+      prepare(playList)
+    }
+
     super.onCreate()
   }
 
   override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
     intent.extras
       ?.getString(Intent.EXTRA_TEXT)
-      ?.let { launch { prepareAudio(it) } }
+      ?.let { prepareAudio(it) }
       ?: logInfo("Could not extract url from onStartCommand")
     return super.onStartCommand(intent, flags, startId)
   }
 
-  private suspend fun prepareAudio(url: String) {
-    val result = fetchSample(url)
-    play(result)
+  private fun prepareAudio(url: String) {
+    launch {
+      val source = withContext(Dispatchers.IO) { sourceRepository.getSource(url) }
+      playList.add(source)
+      player.play(playList.size - 1)
+    }
   }
 
-  private suspend fun fetchSample(url: String) =
-      withContext(Dispatchers.IO) {
-      sampleRepository.getSample(url)
+  private fun Player.play(index: Int) {
+    when (currentIndex) {
+      // set the current index the first time around
+      null -> currentIndex = index
+      // same index, just replay from beginning
+      index -> seekToDefaultPosition()
+      // playlist size has changed - navigate to the requested index
+      else -> seekToDefaultPosition(index)
     }
-
-  private fun play(sample: MediaSample) {
-    nowPlaying = sample.also { onSamplePrepared?.invoke(it) }
-
-    // source for individual content
-    val source = mediaSourceFactory.createMediaSource(Uri.parse(sample.streamUrl))
-
-    // playlist source for multiple sources
-    val concatenatingMediaSource = ConcatenatingMediaSource(source)
-
-    player.run {
-      prepare(concatenatingMediaSource)
-      playWhenReady = true
-    }
+    playWhenReady = true
   }
 
   override fun onDestroy() {
@@ -198,6 +205,12 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
       isStopped -> stopForeground(false).also { logInfo("Playback has finished.") }
       isPaused -> stopForeground(false).also { logInfo("Playback has been paused.") }
     }
+  }
+
+  override fun onPositionDiscontinuity(reason: Int) {
+    super.onPositionDiscontinuity(reason)
+    // update the current index as the window may have changed
+    currentIndex = player.currentWindowIndex
   }
 
   inner class LocalBinder : Binder() {
