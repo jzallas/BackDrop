@@ -1,6 +1,9 @@
-name: Android CI
+name: android-build
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - master
 
 jobs:
   build:
