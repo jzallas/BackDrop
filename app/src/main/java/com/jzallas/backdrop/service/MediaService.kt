@@ -13,20 +13,18 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.jzallas.backdrop.MainActivity
 import com.jzallas.backdrop.extensions.log.logInfo
 import com.jzallas.backdrop.repository.MediaSourceRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
-import kotlin.coroutines.CoroutineContext
 import android.os.Binder
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.jzallas.backdrop.exo.DetailedSource
@@ -41,17 +39,13 @@ private typealias BitmapCallback = PlayerNotificationManager.BitmapCallback
 private typealias NotificationListener = PlayerNotificationManager.NotificationListener
 private typealias EventListener = Player.EventListener
 
-class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationListener, EventListener, CoroutineScope {
+class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationListener, EventListener {
   companion object {
     const val SESSION_TAG = "com.jzallas.backdrop.service.MediaService"
     fun createIntent(context: Context, original: Intent): Intent =
       Intent(original)
         .setClass(context, MediaService::class.java)
   }
-
-  private lateinit var job: Job
-  override val coroutineContext: CoroutineContext
-    get() = job + Dispatchers.Main
 
   private lateinit var connector: MediaSessionConnector
 
@@ -87,7 +81,6 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   }
 
   override fun onCreate() {
-    job = Job()
     notificationManager.setPlayer(player)
     player.addListener(this)
 
@@ -140,7 +133,7 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   }
 
   private fun prepareAudio(url: String) {
-    launch {
+    lifecycleScope.launch {
       val source = withContext(Dispatchers.IO) { sourceRepository.getSource(url) }
       playList.add(source)
       player.play(playList.size - 1)
@@ -164,7 +157,6 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
     player.release()
     notificationManager.setPlayer(null)
     connector.setPlayer(null)
-    job.cancel()
     super.onDestroy()
   }
 
