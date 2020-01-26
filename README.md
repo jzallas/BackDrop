@@ -1,6 +1,7 @@
 #  BackDrop
 [![Actions Status](https://github.com/jzallas/BackDrop/workflows/android-release/badge.svg)](https://github.com/jzallas/BackDrop/actions)
 [![license](https://img.shields.io/github/license/jzallas/BackDrop)](https://github.com/jzallas/BackDrop/blob/master/LICENSE)
+[![releases](https://img.shields.io/github/v/release/jzallas/backdrop)](https://github.com/jzallas/BackDrop/releases)
 
 Plays youtube audio in the background.
 
