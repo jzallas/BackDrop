@@ -2,6 +2,7 @@ package com.jzallas.backdrop
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.ServiceConnection
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -16,6 +17,10 @@ import com.jzallas.backdrop.service.MediaService
 import kotlinx.android.synthetic.main.main_activity.*
 
 class MainActivity : AppCompatActivity(), ServiceConnection {
+
+  companion object {
+    fun createIntent(context: Context) = Intent(context, MainActivity::class.java)
+  }
 
   private lateinit var viewModel: MainViewModel
 
@@ -32,6 +37,9 @@ class MainActivity : AppCompatActivity(), ServiceConnection {
     viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
     ActivityCompat.startForegroundService(this, mediaServiceIntent)
+
+    // switch to default intent so we don't replay a share intent
+    intent = createIntent(this)
   }
 
   override fun onStart() {

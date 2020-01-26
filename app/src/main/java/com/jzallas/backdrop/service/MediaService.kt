@@ -160,9 +160,13 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
     super.onDestroy()
   }
 
-  override fun createCurrentContentIntent(player: Player): PendingIntent =
-    Intent(this, MainActivity::class.java)
-      .let { PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_UPDATE_CURRENT) }
+  override fun createCurrentContentIntent(player: Player) =
+    PendingIntent.getActivity(
+      this,
+      0,
+      MainActivity.createIntent(this),
+      PendingIntent.FLAG_UPDATE_CURRENT
+    )
 
   override fun getCurrentContentTitle(player: Player?) =
     nowPlaying?.title
