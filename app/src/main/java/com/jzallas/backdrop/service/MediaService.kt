@@ -31,7 +31,10 @@ import com.jzallas.backdrop.exo.DetailedSource
 import com.jzallas.backdrop.exo.PlayList
 import com.jzallas.backdrop.extensions.distinct
 import com.jzallas.backdrop.extensions.glide.into
+import com.jzallas.backdrop.extensions.log.logError
 import com.jzallas.backdrop.repository.model.MediaSample
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.plus
 
 private typealias NotificationManager = PlayerNotificationManager
 private typealias MediaDescriptionAdapter = PlayerNotificationManager.MediaDescriptionAdapter
@@ -46,6 +49,12 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
       Intent(original)
         .setClass(context, MediaService::class.java)
   }
+
+  private val exceptionHandler: CoroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+    logError("Unexpected failure", throwable)
+  }
+
+  private val scope = lifecycleScope + exceptionHandler
 
   private lateinit var connector: MediaSessionConnector
 
@@ -133,7 +142,7 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   }
 
   private fun prepareAudio(url: String) {
-    lifecycleScope.launch {
+    scope.launch {
       val source = withContext(Dispatchers.IO) { sourceRepository.getSource(url) }
       playList.add(source)
       player.play(playList.size - 1)
