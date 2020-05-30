@@ -20,8 +20,6 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.jzallas.backdrop.R
-import com.jzallas.backdrop.exo.DetailedSource
-import com.jzallas.backdrop.exo.DetailedSourceFactory
 import com.jzallas.backdrop.webview.WebViewFactory
 import com.jzallas.backdrop.repository.MediaSourceRepository
 import org.koin.core.qualifier.named
@@ -66,8 +64,6 @@ val playerModule = module {
   factory<ExtractorsFactory> { DefaultExtractorsFactory() }
 
   factory { ProgressiveMediaSource.Factory(get(), get()) } bind MediaSourceFactory::class
-
-  factory { DetailedSourceFactory(get()) } bind DetailedSource.Factory::class
 }
 
 val notificationModule = module {

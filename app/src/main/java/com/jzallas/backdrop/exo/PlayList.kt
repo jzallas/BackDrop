@@ -10,27 +10,29 @@ import kotlin.coroutines.suspendCoroutine
 /**
  * A mutable collection of [MediaSources][MediaSource] organized in playback order.
  *
- * Behaves similar to a [HashSet] in that no two [MediaSources][MediaSource] are allowed to share the same unique hash.
- * This list can also be used as a [MediaSource] itself with [ExoPlayer.prepare].
+ * Behaves similar to a [HashSet] in that no two [source tags][MediaSource.getTag] are allowed to share the same
+ * unique hash. This list can also be used as a [MediaSource] itself with [ExoPlayer.prepare].
  *
  * @property handler used for async modifications to the underlying [ConcatenatingMediaSource]
  * @param concatenatingMediaSource underlying [MediaSource] for handling source synchronization
  */
-class PlayList<T : MediaSource>(
+class PlayList<T>(
   private val handler: Handler = Handler(),
   concatenatingMediaSource: ConcatenatingMediaSource = ConcatenatingMediaSource()
 ) : ComposedMediaSource<ConcatenatingMediaSource>(concatenatingMediaSource),
-  Collection<T> {
+  Collection<MediaSource> {
 
   override val size: Int
     get() = source.size
 
-  operator fun get(index: Int) = source.getMediaSource(index) as T
+  operator fun get(index: Int) = source.getMediaSource(index)
 
-  override fun contains(element: T) =
-    find { it.hashCode() == element.hashCode() } != null
+  fun getTag(index: Int) = source.getMediaSource(index).tag as T
 
-  override fun containsAll(elements: Collection<T>) =
+  override fun contains(element: MediaSource) =
+    find { it.tag == element.tag } != null
+
+  override fun containsAll(elements: Collection<MediaSource>) =
     elements.all { contains(it) }
 
   override fun isEmpty() =
@@ -43,7 +45,7 @@ class PlayList<T : MediaSource>(
       }
     }
 
-  suspend fun add(element: T): Boolean = suspendCoroutine { continuation ->
+  suspend fun add(element: TaggedMediaSource<T>): Boolean = suspendCoroutine { continuation ->
     when {
       contains(element) -> continuation.resume(false)
       else -> source.addMediaSource(element, handler) { continuation.resume(true) }
@@ -51,7 +53,7 @@ class PlayList<T : MediaSource>(
   }
 
 
-  suspend fun addAll(elements: Collection<T>): Boolean = suspendCoroutine { continuation ->
+  suspend fun addAll(elements: Collection<TaggedMediaSource<T>>): Boolean = suspendCoroutine { continuation ->
     val newElements = elements.filter { !this.contains(it) }
     when {
       newElements.isEmpty() -> continuation.resume(false)
@@ -63,7 +65,7 @@ class PlayList<T : MediaSource>(
     source.clear(handler) { continuation.resume(Unit) }
   }
 
-  suspend fun remove(element: T): Boolean = suspendCoroutine { continuation ->
+  suspend fun remove(element: TaggedMediaSource<T>): Boolean = suspendCoroutine { continuation ->
     when (val index = indexOf(element)) {
       -1 -> continuation.resume(false)
       else -> source.removeMediaSource(index, handler) { continuation.resume(true) }

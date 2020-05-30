@@ -1,16 +1,18 @@
 package com.jzallas.backdrop.repository
 
 import android.net.Uri
+import com.google.android.exoplayer2.source.MediaSourceFactory
 import com.google.android.exoplayer2.util.MimeTypes
-import com.jzallas.backdrop.exo.DetailedSource
+import com.jzallas.backdrop.exo.TaggedMediaSource
+import com.jzallas.backdrop.exo.withTag
 import com.jzallas.backdrop.repository.model.MediaSample
 
 class MediaSourceRepository(
   private val youTubeRepository: YouTubeRepository,
-  private val factory: DetailedSource.Factory
+  private val factory: MediaSourceFactory
 ) {
 
-  fun getSource(url: String): DetailedSource<MediaSample> {
+  fun getSource(url: String): TaggedMediaSource<MediaSample> {
     val info = youTubeRepository.getVideoInfo(url)
 
     // best format
@@ -32,6 +34,6 @@ class MediaSourceRepository(
 
     val uri = Uri.parse(format.url)
 
-    return factory.createMediaSource(uri, sample)
+    return factory.createMediaSource(uri).withTag(sample)
   }
 }
