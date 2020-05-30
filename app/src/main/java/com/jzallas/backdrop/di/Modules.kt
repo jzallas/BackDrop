@@ -130,5 +130,5 @@ val repositoryModule = module {
 val parsingModule = module {
   single { Json(get<JsonConfiguration>()) }
 
-  single { JsonConfiguration.Stable.copy(strictMode = false) }
+  single { JsonConfiguration.Stable.copy(ignoreUnknownKeys = true, isLenient = true) }
 }

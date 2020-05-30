@@ -7,8 +7,8 @@ import com.jzallas.webview.html.loadAsset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 
 class YouTubeApi(
   private val factory: WebViewFactory,
