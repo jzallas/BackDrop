@@ -2,7 +2,7 @@ package com.jzallas.backdrop.exo
 
 import android.net.Uri
 import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ads.AdsMediaSource
+import com.google.android.exoplayer2.source.MediaSourceFactory
 import com.jzallas.backdrop.extensions.castOrNull
 
 /**
@@ -23,7 +23,7 @@ class DetailedSource<T> internal constructor(
 }
 
 class DetailedSourceFactory(
-  private val factory: AdsMediaSource.MediaSourceFactory
+  private val factory: MediaSourceFactory
 ) : DetailedSource.Factory {
   override fun <T> createMediaSource(uri: Uri, details: T) = DetailedSource(details, factory.createMediaSource(uri))
 }

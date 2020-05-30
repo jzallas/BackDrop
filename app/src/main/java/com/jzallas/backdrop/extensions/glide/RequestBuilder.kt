@@ -10,7 +10,7 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager
 fun RequestBuilder<Bitmap>.into(callback: PlayerNotificationManager.BitmapCallback): Nothing? {
   into(object : CustomTarget<Bitmap>() {
     override fun onLoadCleared(placeholder: Drawable?) {
-      callback.onBitmap(null)
+      // no op
     }
 
     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {

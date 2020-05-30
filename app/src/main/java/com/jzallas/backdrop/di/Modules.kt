@@ -6,14 +6,14 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.LoadControl
 import com.google.android.exoplayer2.RenderersFactory
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
+import com.google.android.exoplayer2.source.MediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.source.ads.AdsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
@@ -34,18 +34,18 @@ import kotlinx.serialization.json.JsonConfiguration
 import org.koin.dsl.bind
 
 
-typealias MediaSourceFactory = AdsMediaSource.MediaSourceFactory
 typealias MediaDescriptionAdapter = PlayerNotificationManager.MediaDescriptionAdapter
 typealias NotificationListener = PlayerNotificationManager.NotificationListener
 
 val playerModule = module {
   factory<ExoPlayer> {
-    ExoPlayerFactory.newSimpleInstance(
-      get(),
-      get<RenderersFactory>(),
-      get<TrackSelector>(),
-      get<LoadControl>()
-    ).apply { setAudioAttributes(get(), true) }
+    SimpleExoPlayer.Builder(get())
+      .build()
+      .apply {
+        setAudioAttributes(get(), true)
+        setHandleAudioBecomingNoisy(true)
+        setWakeMode(C.WAKE_MODE_LOCAL)
+      }
   }
 
   factory {

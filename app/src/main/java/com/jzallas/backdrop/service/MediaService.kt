@@ -96,13 +96,11 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
     mediaSession = MediaSessionCompat(this, SESSION_TAG)
     mediaSession.isActive = true
 
-    lifecycle.addObserver(BecomingNoisyReceiver(this, mediaSession))
-
     notificationManager.setMediaSessionToken(mediaSession.sessionToken)
     connector = MediaSessionConnector(mediaSession)
 
     connector.setQueueNavigator(object : TimelineQueueNavigator(mediaSession) {
-      override fun getMediaDescription(player: Player?, windowIndex: Int): MediaDescriptionCompat {
+      override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
         val sample = playList[windowIndex].details
 
         // TODO - consider pre-loading bitmap
@@ -177,8 +175,8 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
       PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-  override fun getCurrentContentTitle(player: Player?) =
-    nowPlaying?.title
+  override fun getCurrentContentTitle(player: Player) =
+    nowPlaying?.title ?: "[Unknown Title]"
 
   override fun getCurrentContentText(player: Player) =
     nowPlaying?.sourceUrl
@@ -193,7 +191,7 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   }
 
 
-  override fun onNotificationPosted(id: Int, notification: Notification?, ongoing: Boolean) {
+  override fun onNotificationPosted(id: Int, notification: Notification, ongoing: Boolean) {
     if (ongoing) startForeground(id, notification)
   }
 
