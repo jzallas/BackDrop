@@ -3,23 +3,19 @@ package com.jzallas.backdrop.di
 import android.webkit.WebViewClient
 import androidx.webkit.WebViewAssetLoader
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.LoadControl
-import com.google.android.exoplayer2.RenderersFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.source.MediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelector
+import com.google.android.exoplayer2.source.dash.DashMediaSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.jzallas.backdrop.R
+import com.jzallas.backdrop.exo.DynamicTypeMediaSourceFactory
 import com.jzallas.backdrop.webview.WebViewFactory
 import com.jzallas.backdrop.repository.MediaSourceRepository
 import org.koin.core.qualifier.named
@@ -53,17 +49,17 @@ val playerModule = module {
       .build()
   }
 
-  factory<RenderersFactory> { DefaultRenderersFactory(get()) }
+  factory { DefaultDataSourceFactory(get(), get<String>(named("userAgent"))) } bind DataSource.Factory::class
 
-  factory<TrackSelector> { DefaultTrackSelector() }
+  factory { ProgressiveMediaSource.Factory(get()) } bind MediaSourceFactory::class
 
-  factory<LoadControl> { DefaultLoadControl() }
+  factory { DashMediaSource.Factory(get()) } bind MediaSourceFactory::class
 
-  factory<DataSource.Factory> { DefaultDataSourceFactory(get(), get<String>(named("userAgent"))) }
+  factory { SsMediaSource.Factory(get()) } bind MediaSourceFactory::class
 
-  factory<ExtractorsFactory> { DefaultExtractorsFactory() }
+  factory { HlsMediaSource.Factory(get<DataSource.Factory>()) } bind MediaSourceFactory::class
 
-  factory { ProgressiveMediaSource.Factory(get(), get()) } bind MediaSourceFactory::class
+  factory { DynamicTypeMediaSourceFactory(getAll()) }
 }
 
 val notificationModule = module {
