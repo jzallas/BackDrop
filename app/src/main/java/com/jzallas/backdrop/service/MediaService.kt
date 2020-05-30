@@ -27,7 +27,6 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.jzallas.backdrop.exo.DetailedSource
 import com.jzallas.backdrop.exo.PlayList
 import com.jzallas.backdrop.extensions.distinct
 import com.jzallas.backdrop.extensions.glide.into
@@ -62,7 +61,7 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
 
   val player: ExoPlayer by inject()
 
-  private val playList by lazy { PlayList<DetailedSource<MediaSample>>() }
+  private val playList by lazy { PlayList<MediaSample>() }
 
   private val notificationManager: NotificationManager by inject { parametersOf(this, this) }
 
@@ -78,11 +77,11 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   private var currentIndex by distinct<Int?>(null) { _, new ->
     new ?: return@distinct
     // every time the currentIndex changes, notify listeners about the new content
-    playList[new].details.also { onSamplePrepared?.invoke(it) }
+    playList.getTag(new).also { onSamplePrepared?.invoke(it) }
   }
 
   private val nowPlaying: MediaSample?
-    get() = currentIndex?.let { playList[it] }?.details
+    get() = currentIndex?.let { playList.getTag(it) }
 
   override fun onBind(intent: Intent): IBinder {
     super.onBind(intent)
@@ -96,14 +95,12 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
     mediaSession = MediaSessionCompat(this, SESSION_TAG)
     mediaSession.isActive = true
 
-    lifecycle.addObserver(BecomingNoisyReceiver(this, mediaSession))
-
     notificationManager.setMediaSessionToken(mediaSession.sessionToken)
     connector = MediaSessionConnector(mediaSession)
 
     connector.setQueueNavigator(object : TimelineQueueNavigator(mediaSession) {
-      override fun getMediaDescription(player: Player?, windowIndex: Int): MediaDescriptionCompat {
-        val sample = playList[windowIndex].details
+      override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
+        val sample = playList.getTag(windowIndex)
 
         // TODO - consider pre-loading bitmap
         val bitmap: Bitmap? = null
@@ -177,8 +174,8 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
       PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-  override fun getCurrentContentTitle(player: Player?) =
-    nowPlaying?.title
+  override fun getCurrentContentTitle(player: Player) =
+    nowPlaying?.title ?: "[Unknown Title]"
 
   override fun getCurrentContentText(player: Player) =
     nowPlaying?.sourceUrl
@@ -193,7 +190,7 @@ class MediaService : LifecycleService(), MediaDescriptionAdapter, NotificationLi
   }
 
 
-  override fun onNotificationPosted(id: Int, notification: Notification?, ongoing: Boolean) {
+  override fun onNotificationPosted(id: Int, notification: Notification, ongoing: Boolean) {
     if (ongoing) startForeground(id, notification)
   }
 

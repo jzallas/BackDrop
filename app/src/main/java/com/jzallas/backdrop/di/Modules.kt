@@ -3,25 +3,19 @@ package com.jzallas.backdrop.di
 import android.webkit.WebViewClient
 import androidx.webkit.WebViewAssetLoader
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.LoadControl
-import com.google.android.exoplayer2.RenderersFactory
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
+import com.google.android.exoplayer2.source.MediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.source.ads.AdsMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelector
+import com.google.android.exoplayer2.source.dash.DashMediaSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.jzallas.backdrop.R
-import com.jzallas.backdrop.exo.DetailedSource
-import com.jzallas.backdrop.exo.DetailedSourceFactory
+import com.jzallas.backdrop.exo.DynamicTypeMediaSourceFactory
 import com.jzallas.backdrop.webview.WebViewFactory
 import com.jzallas.backdrop.repository.MediaSourceRepository
 import org.koin.core.qualifier.named
@@ -34,18 +28,18 @@ import kotlinx.serialization.json.JsonConfiguration
 import org.koin.dsl.bind
 
 
-typealias MediaSourceFactory = AdsMediaSource.MediaSourceFactory
 typealias MediaDescriptionAdapter = PlayerNotificationManager.MediaDescriptionAdapter
 typealias NotificationListener = PlayerNotificationManager.NotificationListener
 
 val playerModule = module {
   factory<ExoPlayer> {
-    ExoPlayerFactory.newSimpleInstance(
-      get(),
-      get<RenderersFactory>(),
-      get<TrackSelector>(),
-      get<LoadControl>()
-    ).apply { setAudioAttributes(get(), true) }
+    SimpleExoPlayer.Builder(get())
+      .build()
+      .apply {
+        setAudioAttributes(get(), true)
+        setHandleAudioBecomingNoisy(true)
+        setWakeMode(C.WAKE_MODE_LOCAL)
+      }
   }
 
   factory {
@@ -55,19 +49,17 @@ val playerModule = module {
       .build()
   }
 
-  factory<RenderersFactory> { DefaultRenderersFactory(get()) }
+  factory { DefaultDataSourceFactory(get(), get<String>(named("userAgent"))) } bind DataSource.Factory::class
 
-  factory<TrackSelector> { DefaultTrackSelector() }
+  factory { ProgressiveMediaSource.Factory(get()) } bind MediaSourceFactory::class
 
-  factory<LoadControl> { DefaultLoadControl() }
+  factory { DashMediaSource.Factory(get()) } bind MediaSourceFactory::class
 
-  factory<DataSource.Factory> { DefaultDataSourceFactory(get(), get<String>(named("userAgent"))) }
+  factory { SsMediaSource.Factory(get()) } bind MediaSourceFactory::class
 
-  factory<ExtractorsFactory> { DefaultExtractorsFactory() }
+  factory { HlsMediaSource.Factory(get<DataSource.Factory>()) } bind MediaSourceFactory::class
 
-  factory { ProgressiveMediaSource.Factory(get(), get()) } bind MediaSourceFactory::class
-
-  factory { DetailedSourceFactory(get()) } bind DetailedSource.Factory::class
+  factory { DynamicTypeMediaSourceFactory(getAll()) }
 }
 
 val notificationModule = module {
@@ -134,5 +126,5 @@ val repositoryModule = module {
 val parsingModule = module {
   single { Json(get<JsonConfiguration>()) }
 
-  single { JsonConfiguration.Stable.copy(strictMode = false) }
+  single { JsonConfiguration.Stable.copy(ignoreUnknownKeys = true, isLenient = true) }
 }

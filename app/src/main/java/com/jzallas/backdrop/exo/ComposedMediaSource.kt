@@ -12,12 +12,9 @@ import com.google.android.exoplayer2.upstream.TransferListener
 abstract class ComposedMediaSource<T : MediaSource>(
   internal val source: T
 ) : MediaSource by source {
-  override fun prepareSource(
-    listener: MediaSource.SourceInfoRefreshListener?,
-    mediaTransferListener: TransferListener?
-  ) {
-    val topLevelListener = MediaSource.SourceInfoRefreshListener { _, timeline, manifest ->
-      listener?.onSourceInfoRefreshed(this@ComposedMediaSource, timeline, manifest)
+  override fun prepareSource(caller: MediaSource.MediaSourceCaller?, mediaTransferListener: TransferListener?) {
+    val topLevelListener = MediaSource.MediaSourceCaller { _, timeline ->
+      caller?.onSourceInfoRefreshed(this@ComposedMediaSource, timeline)
     }
     source.prepareSource(topLevelListener, mediaTransferListener)
   }
