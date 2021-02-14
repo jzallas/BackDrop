@@ -1,0 +1,13 @@
+diff --git a/node_modules/url/url.js b/node_modules/url/url.js
+index 23ac6f5..5074582 100644
+--- a/node_modules/url/url.js
++++ b/node_modules/url/url.js
+@@ -30,6 +30,8 @@ exports.resolveObject = urlResolveObject;
+ exports.format = urlFormat;
+ 
+ exports.Url = Url;
++exports.URL = (typeof window !== 'undefined' && window.URL)
++  ? window.URL : Url;
+ 
+ function Url() {
+   this.protocol = null;

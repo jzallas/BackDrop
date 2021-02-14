@@ -1,9 +1,10 @@
 package com.jzallas.backdrop.repository
 
-import com.jzallas.backdrop.webview.WebViewFactory
+import android.util.Log
 import com.jzallas.backdrop.repository.model.VideoInfo
-import com.jzallas.webview.promise.call
+import com.jzallas.backdrop.webview.WebViewFactory
 import com.jzallas.webview.html.loadAsset
+import com.jzallas.webview.promise.call
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

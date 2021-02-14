@@ -27,7 +27,7 @@ class MediaSourceRepository(
       .let { it.first() to it.last() }
 
     val sample = MediaSample(
-      title = info.title,
+      title = info.details.title,
       sourceUrl = url,
       thumbnailUrl = lowResThumbnail.url,
       previewUrl = highResThumbnail.url
